@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 
-const formatMessages = require("./utils/formatMessage.js");
+const formatMessage = require("./utils/formatMessage.js");
 
 const {
   addPlayer,

@@ -21,7 +21,7 @@ const addPlayer = ({ id, playerName, room }) => {
     };
   }
 
-  const newPlayer = { id, playerNamem, room };
+  const newPlayer = { id, playerName, room };
   players.push(newPlayer);
 
   return { newPlayer };
@@ -55,7 +55,7 @@ const removePlayer = (id) => {
   });
 };
 
-modulr.exports = {
+module.exports = {
   addPlayer,
   getPlayer,
   getAllPlayers,
