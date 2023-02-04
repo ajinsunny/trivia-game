@@ -2,6 +2,15 @@
 const express = require("express");
 const app = express();
 
+const formatMessages = require("./utils/formatMessage.js");
+
+const {
+  addPlayer,
+  getPlayer,
+  getAllPlayers,
+  removePlayer,
+} = require("./utils/players.js");
+
 //Connect the socket.io to Express server
 const http = require("http");
 const socketio = require("socket.io");
@@ -19,8 +28,19 @@ const publicDirectoryPath = path.join(__dirname, "../public");
 app.use(express.static(publicDirectoryPath));
 
 //listen to the new connections from the socketio
-io.on("connection", () => {
-  console.log("Just connected");
+io.on("connection", (socket) => {
+  console.log("A new player just connected");
+
+  socket.on("join", ({ playerName, room }, callback) => {
+    const { error, newPlayer } = addPlayer({ id: socket.id, playerName, room });
+
+    if (error) return callback(error.message);
+    callback();
+
+    socket.join(newPlayer.room);
+
+    socket.emit("message", formatMessage("Admin", "Welcome!"));
+  });
 });
 
 //Respond by logging that the server is listenfing to which port.
