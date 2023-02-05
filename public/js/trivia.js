@@ -58,23 +58,32 @@ socket.on("room", ({ room, players }) => {
   gameInfo.innerHTML = html;
 });
 
-const chatForm = document.querySelector('.chat__form');
+const chatForm = document.querySelector(".chat__form");
 
-chatForm.addEventListener('submit', event => {
+chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const chatFormInput = chatForm.querySelector('.chat__message');
-  const chatFormButton = chatForm.querySelector('.chat__submit-btn');
+  const chatFormInput = chatForm.querySelector(".chat__message");
+  const chatFormButton = chatForm.querySelector(".chat__submit-btn");
 
-  chatFormButton.setAttribute('disabled', 'disabled');
+  chatFormButton.setAttribute("disabled", "disabled");
 
   const message = event.target.elements.message.value;
 
-  socket.emit('sendMessage', message, error => {
-    chatFormButton.removeAttribute('disabled');
-    chatFormInput.value = '';
+  socket.emit("sendMessage", message, (error) => {
+    chatFormButton.removeAttribute("disabled");
+    chatFormInput.value = "";
     chatFormInput.focus();
 
+    if (error) return alert(error);
+  });
+});
+
+const triviaQuestionButton = document.querySelector(".trivia__question-btn");
+triviaQuestionButton.addEventListener("click", () => {
+  // pass null as the second argument because we're not sending any data to the server
+  // alert the error if the server sends back an error
+  socket.emit("getQuestion", null, (error) => {
     if (error) return alert(error);
   });
 });
