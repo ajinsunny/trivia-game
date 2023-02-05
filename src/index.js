@@ -53,25 +53,38 @@ io.on("connection", (socket) => {
       players: getAllPlayers(newPlayer.room),
     });
   });
-socket.on("disconnect", () => {
-  console.log("A player is disconnected.");
+  socket.on("disconnect", () => {
+    console.log("A player is disconnected.");
 
-  const disconnectedPlayer = removePlayer(socket.id);
+    const disconnectedPlayer = removePlayer(socket.id);
 
-  if (disconnectedPlayer) {
-    const { playerName, room } = disconnectedPlayer;
-    io.in(room).emit(
-      "message",
-      formatMessage("Admin", `${playerName} has left!`)
-    );
+    if (disconnectedPlayer) {
+      const { playerName, room } = disconnectedPlayer;
+      io.in(room).emit(
+        "message",
+        formatMessage("Admin", `${playerName} has left!`)
+      );
 
-    io.in(room).emit("room", {
-      room,
-      players: getAllPlayers(room),
-    });
-  }
-});
+      io.in(room).emit("room", {
+        room,
+        players: getAllPlayers(room),
+      });
+    }
+  });
 
+  socket.on("sendMessage", (message, callback) => {
+    const { error, player } = getPlayer(socket.id);
+
+    if (error) return callback(error.message);
+
+    if (player) {
+      io.to(player.room).emit(
+        "message",
+        formatMessage(player.playerName, message)
+      );
+      callback(); // invoke the callback to trigger event acknowledgment
+    }
+  });
 });
 
 //Respond by logging that the server is listenfing to which port.

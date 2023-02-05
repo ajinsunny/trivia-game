@@ -57,3 +57,24 @@ socket.on("room", ({ room, players }) => {
 
   gameInfo.innerHTML = html;
 });
+
+const chatForm = document.querySelector('.chat__form');
+
+chatForm.addEventListener('submit', event => {
+  event.preventDefault();
+
+  const chatFormInput = chatForm.querySelector('.chat__message');
+  const chatFormButton = chatForm.querySelector('.chat__submit-btn');
+
+  chatFormButton.setAttribute('disabled', 'disabled');
+
+  const message = event.target.elements.message.value;
+
+  socket.emit('sendMessage', message, error => {
+    chatFormButton.removeAttribute('disabled');
+    chatFormInput.value = '';
+    chatFormInput.focus();
+
+    if (error) return alert(error);
+  });
+});

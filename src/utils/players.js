@@ -1,15 +1,14 @@
 const players = [];
 
-//Add a new player to the game
 const addPlayer = ({ id, playerName, room }) => {
+  playerName = playerName.trim().toLowerCase();
+  room = room.trim().toLowerCase();
+
   if (!playerName || !room) {
     return {
-      error: new Error("Please enter a player name "),
+      error: new Error("Please enter a player name and room!"),
     };
   }
-
-  playerName = playerName.trim().toLowerCase();
-  room = room.trim().toLocaleLowerCase();
 
   const existingPlayer = players.find((player) => {
     return player.room === room && player.playerName === playerName;
@@ -17,7 +16,7 @@ const addPlayer = ({ id, playerName, room }) => {
 
   if (existingPlayer) {
     return {
-      error: new Error("Player name is already in use"),
+      error: new Error("Player name is in use!"),
     };
   }
 
@@ -27,25 +26,22 @@ const addPlayer = ({ id, playerName, room }) => {
   return { newPlayer };
 };
 
-//Get Player by id
 const getPlayer = (id) => {
-  const player = player.find((player) => player.id === id);
+  const player = players.find((player) => player.id === id);
 
   if (!player) {
     return {
       error: new Error("Player not found!"),
     };
   }
+
   return { player };
 };
-
-// Get all the players in the room
 
 const getAllPlayers = (room) => {
   return players.filter((player) => player.room === room);
 };
 
-//Remove a player by id
 const removePlayer = (id) => {
   return players.find((player, index) => {
     if (player.id === id) {
