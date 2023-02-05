@@ -53,6 +53,25 @@ io.on("connection", (socket) => {
       players: getAllPlayers(newPlayer.room),
     });
   });
+socket.on("disconnect", () => {
+  console.log("A player is disconnected.");
+
+  const disconnectedPlayer = removePlayer(socket.id);
+
+  if (disconnectedPlayer) {
+    const { playerName, room } = disconnectedPlayer;
+    io.in(room).emit(
+      "message",
+      formatMessage("Admin", `${playerName} has left!`)
+    );
+
+    io.in(room).emit("room", {
+      room,
+      players: getAllPlayers(room),
+    });
+  }
+});
+
 });
 
 //Respond by logging that the server is listenfing to which port.
