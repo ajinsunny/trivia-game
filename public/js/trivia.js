@@ -87,3 +87,47 @@ triviaQuestionButton.addEventListener("click", () => {
     if (error) return alert(error);
   });
 });
+
+// We'll use this helper function to decode any HTML-encoded
+// strings in the trivia questions
+// e.g., "According to DeMorgan&#039;s Theorem, the Boolean expression (AB)&#039; is equivalent to:"
+const decodeHTMLEntities = (text) => {
+  const textArea = document.createElement("textarea");
+  textArea.innerHTML = text;
+  return textArea.value;
+};
+
+socket.on("question", ({ answers, createdAt, playerName, question }) => {
+  const triviaForm = document.querySelector(".trivia__form");
+  const triviaQuestion = document.querySelector(".trivia__question");
+  const triviaAnswers = document.querySelector(".trivia__answers");
+  const triviaQuestionButton = document.querySelector(".trivia__question-btn");
+  const triviaFormSubmitButton = triviaForm.querySelector(
+    ".trivia__submit-btn"
+  );
+
+  const questionTemplate = document.querySelector(
+    "#trivia-question-template"
+  ).innerHTML;
+
+  // Clear out any question and answers from the previous round
+  triviaQuestion.innerHTML = "";
+  triviaAnswers.innerHTML = "";
+
+  // Disable the Get Question button to prevent the player from trying to skip a question
+  triviaQuestionButton.setAttribute("disabled", "disabled");
+
+  // Enable the submit button to allow the player to submit an answer
+  triviaFormSubmitButton.removeAttribute("disabled");
+
+  const template = Handlebars.compile(questionTemplate);
+
+  const html = template({
+    playerName,
+    createdAt: moment(createdAt).format("h:mm a"),
+    question: decodeHTMLEntities(question),
+    answers,
+  });
+
+  triviaQuestion.insertAdjacentHTML("beforeend", html);
+});
