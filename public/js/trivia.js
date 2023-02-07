@@ -5,6 +5,10 @@ const playerName = urlSearchParams.get("playerName");
 
 const room = urlSearchParams.get("room");
 
+/*
+Welcome Header
+*/
+
 const mainHeadingTemplate = document.querySelector(
   "#main-heading-template"
 ).innerHTML;
@@ -17,13 +21,19 @@ document.querySelector("main").insertAdjacentHTML(
     playerName,
   })
 );
-
+/*
+Sockett Join Event Emitter
+*/
 socket.emit("join", { playerName, room }, (error) => {
   if (error) {
     alert(error);
     location.href = "/";
   }
 });
+
+/*
+Socket Message EVent LIstener
+*/
 
 socket.on("message", ({ playerName, text, createdAt }) => {
   const chatMessages = document.querySelector(".chat__messages");
@@ -40,7 +50,9 @@ socket.on("message", ({ playerName, text, createdAt }) => {
 
   chatMessages.insertAdjacentHTML("afterBegin", html);
 });
-
+/*
+Socket Room Event Listener
+*/
 socket.on("room", ({ room, players }) => {
   const gameInfo = document.querySelector(".game-info");
 
@@ -57,6 +69,10 @@ socket.on("room", ({ room, players }) => {
 
   gameInfo.innerHTML = html;
 });
+
+/*
+Chat Section
+*/
 
 const chatForm = document.querySelector(".chat__form");
 
@@ -79,6 +95,10 @@ chatForm.addEventListener("submit", (event) => {
   });
 });
 
+/**
+ * Trivia Section
+ */
+
 const triviaQuestionButton = document.querySelector(".trivia__question-btn");
 triviaQuestionButton.addEventListener("click", () => {
   // pass null as the second argument because we're not sending any data to the server
@@ -87,6 +107,37 @@ triviaQuestionButton.addEventListener("click", () => {
     if (error) return alert(error);
   });
 });
+
+const triviaRevealAnswerButton = document.querySelector(".trivia__answer-btn");
+triviaRevealAnswerButton.addEventListener("click", () => {
+  socket.emit("getAnswer", null, (error) => {
+    if (error) return alert(error);
+  });
+});
+
+const triviaForm = document.querySelector(".trivia__form");
+triviaForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const triviaFormSubmitButton = triviaForm.querySelector(
+    ".trivia__submit-btn"
+  );
+  const triviaFormInputAnswer = triviaForm.querySelector(".trivia__answer");
+
+  triviaFormSubmitButton.setAttribute("disabled", "disabled");
+
+  const answer = event.target.elements.answer.value;
+  socket.emit("sendAnswer", answer, (error) => {
+    triviaFormInputAnswer.value = "";
+    triviaFormInputAnswer.focus();
+
+    if (error) return alert(error.message);
+  });
+});
+
+/*
+  SOCKETIO QUESTION EVENT LISTENER
+*/
 
 // We'll use this helper function to decode any HTML-encoded
 // strings in the trivia questions
@@ -130,4 +181,60 @@ socket.on("question", ({ answers, createdAt, playerName, question }) => {
   });
 
   triviaQuestion.insertAdjacentHTML("beforeend", html);
+});
+
+/*
+  SOCKETIO ANSWER EVENT LISTENER
+*/
+
+socket.on("answer", ({ playerName, isRoundOver, createdAt, text }) => {
+  const triviaAnswers = document.querySelector(".trivia__answers");
+  const triviaRevealAnswerButton = document.querySelector(
+    ".trivia__answer-btn"
+  );
+
+  const messageTemplate = document.querySelector("#message-template").innerHTML;
+
+  const template = Handlebars.compile(messageTemplate);
+
+  const html = template({
+    playerName: playerName,
+    text,
+    createdAt: moment(createdAt).format("h:mm a"),
+  });
+
+  triviaAnswers.insertAdjacentHTML("afterBegin", html);
+
+  if (isRoundOver) {
+    triviaRevealAnswerButton.removeAttribute("disabled");
+  }
+});
+
+/*
+  SOCKETIO CORRECTANSWER EVENT LISTENER
+*/
+socket.on("correctAnswer", ({ text }) => {
+  const triviaAnswers = document.querySelector(".trivia__answers");
+  const triviaQuestionButton = document.querySelector(".trivia__question-btn");
+  const triviaRevealAnswerButton = document.querySelector(
+    ".trivia__answer-btn"
+  );
+  const triviaFormSubmitButton = triviaForm.querySelector(
+    ".trivia__submit-btn"
+  );
+
+  const answerTemplate = document.querySelector(
+    "#trivia-answer-template"
+  ).innerHTML;
+  const template = Handlebars.compile(answerTemplate);
+
+  const html = template({
+    text,
+  });
+
+  triviaAnswers.insertAdjacentHTML("afterBegin", html);
+
+  triviaQuestionButton.removeAttribute("disabled");
+  triviaRevealAnswerButton.setAttribute("disabled", "disabled");
+  triviaFormSubmitButton.removeAttribute("disabled");
 });

@@ -103,6 +103,31 @@ io.on("connection", (socket) => {
       });
     }
   });
+  const { setGame, setGameStatus } = require("./utils/game.js");
+
+  socket.on("sendAnswer", (answer, callback) => {
+    const { error, player } = getPlayer(socket.id);
+
+    if (error) return callback(error.message);
+
+    if (player) {
+      const { isRoundOver } = setGameStatus({
+        event: "sendAnswer",
+        playerId: player.id,
+        room: player.room,
+      });
+
+      // Since we want to show the player's submission to the rest of the players,
+      // we have to emit an event (`answer`) to all the players in the room along
+      // with the player's answer and `isRoundOver`.
+      io.to(player.room).emit("answer", {
+        ...formatMessage(player.playerName, answer),
+        isRoundOver,
+      });
+
+      callback();
+    }
+  });
 });
 
 //Respond by logging that the server is listenfing to which port.
