@@ -11,7 +11,7 @@ const {
   removePlayer,
 } = require("./utils/players.js");
 
-const { setGame } = require('./utils/game.js');
+const { setGame } = require("./utils/game.js");
 
 //Connect the socket.io to Express server
 const http = require("http");
@@ -89,9 +89,9 @@ io.on("connection", (socket) => {
   });
   socket.on("getQuestion", (data, callback) => {
     const { error, player } = getPlayer(socket.id);
-  
+
     if (error) return callback(error.message);
-  
+
     if (player) {
       // Pass in a callback function to handle the promise that's returned from the API call
       setGame((game) => {
@@ -104,8 +104,6 @@ io.on("connection", (socket) => {
     }
   });
 });
-
-
 
 //Respond by logging that the server is listenfing to which port.
 server.listen(port, () => {
