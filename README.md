@@ -30,6 +30,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 `cd trivia-game`
 
+`cd src`
+
+`node index.js`
+
 The game should now be running in your web browser.
 
 Built With
