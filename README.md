@@ -1,7 +1,7 @@
 trivia-game
 ===========
 
-![alt text]([http://url/to/img.png](https://github.com/ajinsunny/trivia-game/blob/main/img.png))
+![alt text](https://github.com/ajinsunny/trivia-game/blob/main/img.png)
 
 This is a simple trivia game built using JavaScript, HTML, and CSS. The game randomly selects 10 questions from a pool of questions and allows the player to answer them. The player is given a score based on how many questions they answered correctly.
 
